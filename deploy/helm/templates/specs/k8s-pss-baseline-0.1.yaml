@@ -1,4 +1,4 @@
-{{- if .Values.compliance.specs | has "k8s-pss-baseline-0.1"}}
+{{- if and .Values.compliance.createSpecs (.Values.compliance.specs | has "k8s-pss-baseline-0.1") }}
 ---
 apiVersion: aquasecurity.github.io/v1alpha1
 kind: ClusterComplianceReport

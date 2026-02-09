@@ -1,4 +1,4 @@
-{{- if .Values.compliance.specs | has "k8s-cis-1.23"}}
+{{- if and .Values.compliance.createSpecs (.Values.compliance.specs | has "k8s-cis-1.23") }}
 apiVersion: aquasecurity.github.io/v1alpha1
 kind: ClusterComplianceReport
 metadata:

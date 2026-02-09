@@ -670,6 +670,8 @@ compliance:
     - k8s-nsa-1.0
     - k8s-pss-baseline-0.1
     - k8s-pss-restricted-0.1
+  # -- createSpecs determines whether to create ClusterComplianceReport resources.
+  createSpecs: true
 
 rbac:
   create: true
