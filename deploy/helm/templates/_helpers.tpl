@@ -79,3 +79,38 @@ Define the image registry to use if global values are set.
   {{- .Values.global.image.registry }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create the ConfigMap name for the operator.
+*/}}
+{{- define "trivy-operator.configMapName" -}}
+{{ include "trivy-operator.fullname" . }}
+{{- end }}
+
+{{/*
+Create the Secret name for the operator.
+*/}}
+{{- define "trivy-operator.secretName" -}}
+{{ include "trivy-operator.fullname" . }}
+{{- end }}
+
+{{/*
+Create the ConfigMap name for operator configuration.
+*/}}
+{{- define "trivy-operator.operatorConfigName" -}}
+{{ include "trivy-operator.fullname" . }}-config
+{{- end }}
+
+{{/*
+Create the ConfigMap name for Trivy configuration.
+*/}}
+{{- define "trivy-operator.trivyConfigName" -}}
+{{ include "trivy-operator.fullname" . }}-trivy-config
+{{- end }}
+
+{{/*
+Create the ConfigMap name for policies configuration.
+*/}}
+{{- define "trivy-operator.policiesConfigMapName" -}}
+{{ include "trivy-operator.fullname" . }}-policies-config
+{{- end }}

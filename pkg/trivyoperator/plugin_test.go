@@ -11,12 +11,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
-func TestGetPluginConfigMapName(t *testing.T) {
-	g := gomega.NewGomegaWithT(t)
-	name := trivyoperator.GetPluginConfigMapName("Trivy")
-	g.Expect(name).To(gomega.Equal("trivy-operator-trivy-config"))
-}
-
 func TestPluginContext_GetConfig(t *testing.T) {
 
 	t.Run("Should return PluginConfig from ConfigMap", func(t *testing.T) {
@@ -39,6 +33,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 			WithName("trivy").
 			WithNamespace("trivyoperator-ns").
 			WithClient(client).
+			WithTrivyConfigName("trivy-operator-trivy-config").
 			Get()
 
 		cm, err := pluginContext.GetConfig()
@@ -80,6 +75,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 			WithName("trivy").
 			WithNamespace("trivyoperator-ns").
 			WithClient(client).
+			WithTrivyConfigName("trivy-operator-trivy-config").
 			Get()
 
 		cm, err := pluginContext.GetConfig()

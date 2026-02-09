@@ -60,7 +60,7 @@ func (r *ChecksLoader) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 
 	var cm corev1.ConfigMap
 	if err := r.cl.Get(ctx, req.NamespacedName, &cm); err != nil {
-		if req.Name == trivyoperator.TrivyConfigMapName {
+		if req.Name == r.cfg.TrivyConfigName {
 			log.V(1).Info("Checks removed since trivy config is removed")
 			r.policies = nil
 		}
@@ -98,8 +98,8 @@ func (r *ChecksLoader) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&corev1.ConfigMap{}, builder.WithPredicates(
 			k8spredicate.Or(
-				predicate.HasName(trivyoperator.TrivyConfigMapName),
-				predicate.HasName(trivyoperator.PoliciesConfigMapName),
+				predicate.HasName(r.cfg.TrivyConfigName),
+				predicate.HasName(r.cfg.PoliciesConfigMapName),
 			),
 			predicate.InNamespace(r.cfg.Namespace),
 		)).

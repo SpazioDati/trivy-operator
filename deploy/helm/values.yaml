@@ -537,7 +537,9 @@ trivy:
   # -- existingSecret if a secret containing gitHubToken, serverToken or serverCustomHeaders has been created outside the chart (e.g external-secrets, sops, etc...).
   # Keys must be at least one of the following: trivy.githubToken, trivy.serverToken, trivy.serverCustomHeaders
   # Overrides trivy.gitHubToken, trivy.serverToken, trivy.serverCustomHeaders values.
-  # Note: The secret has to be named "trivy-operator-trivy-config".
+  # Note: The secret name must match the pattern "{{ .Release.Name }}-trivy-config" (or use fullnameOverride if set).
+  # For default release name "trivy-operator", the secret should be named "trivy-operator-trivy-config".
+  # For custom release name or fullnameOverride "myoperator", the secret should be named "myoperator-trivy-config".
   existingSecret: false
 
   # -- serverTokenHeader is the name of the HTTP header used to send the authentication
@@ -746,7 +748,9 @@ policiesBundle:
   # -- existingSecret if a secret containing registry credentials that have been created outside the chart (e.g external-secrets, sops, etc...).
   # Keys must be at least one of the following: policies.bundle.oci.user, policies.bundle.oci.password
   # Overrides policiesBundle.registryUser, policiesBundle.registryPassword values.
-  # Note: The secret has to be named "trivy-operator".
+  # Note: The secret name must match the pattern "{{ .Release.Name }}" (or use fullnameOverride if set).
+  # For default release name "trivy-operator", the secret should be named "trivy-operator".
+  # For custom release name or fullnameOverride "myoperator", the secret should be named "myoperator".
   existingSecret: false
   # -- insecure is the flag to enable insecure connection to the policy bundle registry
   insecure: false

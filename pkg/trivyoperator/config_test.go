@@ -901,7 +901,9 @@ func TestConfigManager_Read(t *testing.T) {
 		},
 	)
 
-	data, err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName).
+	data, err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName,
+		trivyoperator.ConfigMapName, trivyoperator.SecretName,
+		trivyoperator.PoliciesConfigMapName, trivyoperator.TrivyConfigMapName).
 		Read(t.Context())
 
 	require.NoError(t, err)
@@ -919,7 +921,9 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 		namespace := "trivyoperator-ns"
 		clientset := fake.NewSimpleClientset()
 
-		err := trivyoperator.NewConfigManager(clientset, namespace).EnsureDefault(t.Context())
+		err := trivyoperator.NewConfigManager(clientset, namespace,
+			trivyoperator.ConfigMapName, trivyoperator.SecretName,
+			trivyoperator.PoliciesConfigMapName, trivyoperator.TrivyConfigMapName).EnsureDefault(t.Context())
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 
 		cm, err := clientset.CoreV1().ConfigMaps(namespace).
@@ -959,7 +963,7 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 			&corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: namespace,
-					Name:      trivyoperator.GetPluginConfigMapName("Trivy"),
+					Name:      trivyoperator.TrivyConfigMapName,
 				},
 				Data: map[string]string{
 					"trivy.policy.my-check.rego": "<REGO>",
@@ -967,7 +971,9 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 			},
 		)
 
-		err := trivyoperator.NewConfigManager(clientset, namespace).EnsureDefault(t.Context())
+		err := trivyoperator.NewConfigManager(clientset, namespace,
+			trivyoperator.ConfigMapName, trivyoperator.SecretName,
+			trivyoperator.PoliciesConfigMapName, trivyoperator.TrivyConfigMapName).EnsureDefault(t.Context())
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 
 		cm, err := clientset.CoreV1().ConfigMaps(namespace).
@@ -986,7 +992,7 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 		}))
 
 		pluginConfig, err := clientset.CoreV1().ConfigMaps(namespace).
-			Get(t.Context(), trivyoperator.GetPluginConfigMapName("Trivy"), metav1.GetOptions{})
+			Get(t.Context(), trivyoperator.TrivyConfigMapName, metav1.GetOptions{})
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 		g.Expect(pluginConfig.Data).To(gomega.Equal(map[string]string{
 			"trivy.policy.my-check.rego": "<REGO>",
@@ -998,7 +1004,9 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 func TestConfigManager_Delete(t *testing.T) {
 	t.Run("Should not return error when ConfigMap and secret do not exist", func(t *testing.T) {
 		clientset := fake.NewSimpleClientset()
-		err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName).Delete(t.Context())
+		err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName,
+			trivyoperator.ConfigMapName, trivyoperator.SecretName,
+			trivyoperator.PoliciesConfigMapName, trivyoperator.TrivyConfigMapName).Delete(t.Context())
 		require.NoError(t, err)
 	})
 
@@ -1024,7 +1032,9 @@ func TestConfigManager_Delete(t *testing.T) {
 			},
 		)
 
-		err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName).Delete(t.Context())
+		err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName,
+			trivyoperator.ConfigMapName, trivyoperator.SecretName,
+			trivyoperator.PoliciesConfigMapName, trivyoperator.TrivyConfigMapName).Delete(t.Context())
 		require.NoError(t, err)
 
 		_, err = clientset.CoreV1().ConfigMaps(trivyoperator.NamespaceName).

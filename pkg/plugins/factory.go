@@ -18,6 +18,7 @@ type Resolver struct {
 	serviceAccountName string
 	client             client.Client
 	objectResolver     *kube.ObjectResolver
+	trivyConfigName    string
 }
 
 func NewResolver() *Resolver {
@@ -53,6 +54,11 @@ func (r *Resolver) WithObjectResolver(objectResolver *kube.ObjectResolver) *Reso
 	return r
 }
 
+func (r *Resolver) WithTrivyConfigName(trivyConfigName string) *Resolver {
+	r.trivyConfigName = trivyConfigName
+	return r
+}
+
 // GetVulnerabilityPlugin is a factory method that instantiates the vulnerabilityreport.Plugin.
 //
 // Trivy-Operator currently supports Trivy scanner in Standalone and ClientServer
@@ -71,6 +77,7 @@ func (r *Resolver) GetVulnerabilityPlugin() (vulnerabilityreport.Plugin, trivyop
 		WithNamespace(r.namespace).
 		WithServiceAccountName(r.serviceAccountName).
 		WithTrivyOperatorConfig(r.config).
+		WithTrivyConfigName(r.trivyConfigName).
 		Get()
 
 	return trivy.NewPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.objectResolver), pluginContext, nil
@@ -85,6 +92,7 @@ func (r *Resolver) GetConfigAuditPlugin() (configauditreport.PluginInMemory, tri
 		WithNamespace(r.namespace).
 		WithServiceAccountName(r.serviceAccountName).
 		WithTrivyOperatorConfig(r.config).
+		WithTrivyConfigName(r.trivyConfigName).
 		Get()
 
 	return trivy.NewTrivyConfigAuditPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.objectResolver), pluginContext

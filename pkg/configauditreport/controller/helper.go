@@ -27,11 +27,11 @@ func Policies(ctx context.Context, config etc.Config, c client.Client, cac confi
 
 	err := c.Get(ctx, client.ObjectKey{
 		Namespace: config.Namespace,
-		Name:      trivyoperator.PoliciesConfigMapName,
+		Name:      config.PoliciesConfigMapName,
 	}, cm)
 	if err != nil {
 		if !apierrors.IsNotFound(err) {
-			return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", config.Namespace, trivyoperator.PoliciesConfigMapName, err)
+			return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", config.Namespace, config.PoliciesConfigMapName, err)
 		}
 	}
 	var version string

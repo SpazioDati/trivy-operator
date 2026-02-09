@@ -91,7 +91,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 
 				if cm, ok := obj.(*corev1.ConfigMap); ok {
 					// Strip data from ALL ConfigMaps except the two operator ConfigMaps
-					if cm.Name != trivyoperator.PoliciesConfigMapName && cm.Name != trivyoperator.TrivyConfigMapName {
+					if cm.Name != operatorConfig.PoliciesConfigMapName && cm.Name != operatorConfig.TrivyConfigName {
 						cm.Data = nil
 						cm.BinaryData = nil
 					}
@@ -168,7 +168,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		return err
 	}
 
-	configManager := trivyoperator.NewConfigManager(clientSet, operatorNamespace)
+	configManager := trivyoperator.NewConfigManager(clientSet, operatorNamespace, operatorConfig.ConfigMapName, operatorConfig.SecretName, operatorConfig.PoliciesConfigMapName, operatorConfig.TrivyConfigName)
 	err = configManager.EnsureDefault(ctx)
 	if err != nil {
 		return err
@@ -192,6 +192,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		WithConfig(trivyOperatorConfig).
 		WithClient(mgr.GetClient()).
 		WithObjectResolver(&objectResolver).
+		WithTrivyConfigName(operatorConfig.TrivyConfigName).
 		GetVulnerabilityPlugin()
 	if err != nil {
 		return err
@@ -206,6 +207,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		WithConfig(trivyOperatorConfig).
 		WithClient(mgr.GetClient()).
 		WithObjectResolver(&objectResolver).
+		WithTrivyConfigName(operatorConfig.TrivyConfigName).
 		GetConfigAuditPlugin()
 
 	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled || operatorConfig.SbomGenerationEnable {

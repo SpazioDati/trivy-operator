@@ -56,6 +56,14 @@ spec:
               value: {{ tpl .Values.targetWorkloads . | quote }}
             - name: OPERATOR_SERVICE_ACCOUNT
               value: {{ include "trivy-operator.serviceAccountName" . | quote }}
+            - name: OPERATOR_CONFIG_MAP_NAME
+              value: {{ include "trivy-operator.configMapName" . | quote }}
+            - name: OPERATOR_SECRET_NAME
+              value: {{ include "trivy-operator.secretName" . | quote }}
+            - name: OPERATOR_POLICIES_CONFIG_MAP_NAME
+              value: {{ include "trivy-operator.policiesConfigMapName" . | quote }}
+            - name: OPERATOR_TRIVY_CONFIG_NAME
+              value: {{ include "trivy-operator.trivyConfigName" . | quote }}
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -67,7 +75,7 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: trivy-operator-config
+                name: {{ include "trivy-operator.operatorConfigName" . }}
             {{- if .Values.operator.valuesFromConfigMap }}
             - configMapRef:
                 name: {{ .Values.operator.valuesFromConfigMap }}

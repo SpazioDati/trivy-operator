@@ -1,7 +1,7 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: trivy-operator-config
+  name: {{ include "trivy-operator.operatorConfigName" . }}
   namespace: {{ include "trivy-operator.namespace" . }}
   labels: {{- include "trivy-operator.labels" . | nindent 4 }}
 data:

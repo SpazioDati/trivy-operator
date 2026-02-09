@@ -1,6 +1,7 @@
 package trivyoperator
 
 const (
+	// TODO: to be removed
 	// NamespaceName the name of the namespace in which Trivy-operator stores its
 	// configuration and where it runs scan jobs.
 	NamespaceName = "trivy-operator"

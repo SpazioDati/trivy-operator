@@ -71,7 +71,7 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 		if err := ctrl.NewControllerManagedBy(mgr).
 			For(&corev1.ConfigMap{}, builder.WithPredicates(
 				predicate.Not(predicate.IsBeingTerminated),
-				predicate.HasName(trivyoperator.PoliciesConfigMapName),
+				predicate.HasName(r.Config.PoliciesConfigMapName),
 				predicate.InNamespace(r.Config.Namespace),
 			)).
 			Complete(r.reconcileConfig(configResource.Kind)); err != nil {
@@ -90,7 +90,7 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 		err := ctrl.NewControllerManagedBy(mgr).
 			For(&corev1.ConfigMap{}, builder.WithPredicates(
 				predicate.Not(predicate.IsBeingTerminated),
-				predicate.HasName(trivyoperator.PoliciesConfigMapName),
+				predicate.HasName(r.Config.PoliciesConfigMapName),
 				predicate.InNamespace(r.Config.Namespace))).
 			Complete(r.reconcileClusterConfig(resource.Kind))
 		if err != nil {

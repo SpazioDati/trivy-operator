@@ -64,6 +64,10 @@ type Config struct {
 	AltReportStorageEnabled                      bool           `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED" envDefault:"false"`
 	AltReportDir                                 string         `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_DIR" envDefault:""`
 	PprofBindAddress                             string         `env:"OPERATOR_PPROF_BIND_ADDRESS" envDefault:""`
+	ConfigMapName                                string         `env:"OPERATOR_CONFIG_MAP_NAME" envDefault:"trivy-operator"`
+	SecretName                                   string         `env:"OPERATOR_SECRET_NAME" envDefault:"trivy-operator"`
+	PoliciesConfigMapName                        string         `env:"OPERATOR_POLICIES_CONFIG_MAP_NAME" envDefault:"trivy-operator-policies-config"`
+	TrivyConfigName                              string         `env:"OPERATOR_TRIVY_CONFIG_NAME" envDefault:"trivy-operator-trivy-config"`
 }
 
 // GetOperatorConfig loads Config from environment variables.

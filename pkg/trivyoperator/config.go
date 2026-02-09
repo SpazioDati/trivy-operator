@@ -513,28 +513,36 @@ func (c ConfigData) ComplianceFailEntriesLimit() int {
 
 // NewConfigManager constructs a new ConfigManager that is using kubernetes.Interface
 // to manage ConfigData backed by the ConfigMap stored in the specified namespace.
-func NewConfigManager(client kubernetes.Interface, namespace string) ConfigManager {
+func NewConfigManager(client kubernetes.Interface, namespace, configMapName, secretName, policiesConfigMapName, trivyConfigName string) ConfigManager {
 	return &configManager{
-		client:    client,
-		namespace: namespace,
+		client:                client,
+		namespace:             namespace,
+		configMapName:         configMapName,
+		secretName:            secretName,
+		policiesConfigMapName: policiesConfigMapName,
+		trivyConfigName:       trivyConfigName,
 	}
 }
 
 type configManager struct {
-	client    kubernetes.Interface
-	namespace string
+	client                kubernetes.Interface
+	namespace             string
+	configMapName         string
+	secretName            string
+	policiesConfigMapName string
+	trivyConfigName       string
 }
 
 func (c *configManager) EnsureDefault(ctx context.Context) error {
-	_, err := c.client.CoreV1().ConfigMaps(c.namespace).Get(ctx, ConfigMapName, metav1.GetOptions{})
+	_, err := c.client.CoreV1().ConfigMaps(c.namespace).Get(ctx, c.configMapName, metav1.GetOptions{})
 	if err != nil {
 		if !apierrors.IsNotFound(err) {
-			return fmt.Errorf("failed getting configmap: %s: %w", ConfigMapName, err)
+			return fmt.Errorf("failed getting configmap: %s: %w", c.configMapName, err)
 		}
 		_, err = c.client.CoreV1().ConfigMaps(c.namespace).Create(ctx, &corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: c.namespace,
-				Name:      ConfigMapName,
+				Name:      c.configMapName,
 				Labels: labels.Set{
 					LabelK8SAppManagedBy: "trivy-operator",
 				},
@@ -543,21 +551,21 @@ func (c *configManager) EnsureDefault(ctx context.Context) error {
 		}, metav1.CreateOptions{})
 
 		if err != nil {
-			return fmt.Errorf("failed creating configmap: %s: %w", ConfigMapName, err)
+			return fmt.Errorf("failed creating configmap: %s: %w", c.configMapName, err)
 		}
 	}
 
-	_, err = c.client.CoreV1().ConfigMaps(c.namespace).Get(ctx, PoliciesConfigMapName, metav1.GetOptions{})
+	_, err = c.client.CoreV1().ConfigMaps(c.namespace).Get(ctx, c.policiesConfigMapName, metav1.GetOptions{})
 	if err != nil {
 		if !apierrors.IsNotFound(err) {
-			return fmt.Errorf("failed getting configmap: %s: %w", PoliciesConfigMapName, err)
+			return fmt.Errorf("failed getting configmap: %s: %w", c.policiesConfigMapName, err)
 		}
 	}
 
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: c.namespace,
-			Name:      SecretName,
+			Name:      c.secretName,
 			Labels: labels.Set{
 				LabelK8SAppManagedBy: "trivy-operator",
 			},
@@ -572,11 +580,11 @@ func (c *configManager) EnsureDefault(ctx context.Context) error {
 }
 
 func (c *configManager) Read(ctx context.Context) (ConfigData, error) {
-	cm, err := c.client.CoreV1().ConfigMaps(c.namespace).Get(ctx, ConfigMapName, metav1.GetOptions{})
+	cm, err := c.client.CoreV1().ConfigMaps(c.namespace).Get(ctx, c.configMapName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
-	secret, err := c.client.CoreV1().Secrets(c.namespace).Get(ctx, SecretName, metav1.GetOptions{})
+	secret, err := c.client.CoreV1().Secrets(c.namespace).Get(ctx, c.secretName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -595,15 +603,15 @@ func (c *configManager) Read(ctx context.Context) (ConfigData, error) {
 }
 
 func (c *configManager) Delete(ctx context.Context) error {
-	err := c.client.CoreV1().ConfigMaps(c.namespace).Delete(ctx, ConfigMapName, metav1.DeleteOptions{})
+	err := c.client.CoreV1().ConfigMaps(c.namespace).Delete(ctx, c.configMapName, metav1.DeleteOptions{})
 	if err != nil && !apierrors.IsNotFound(err) {
 		return err
 	}
-	err = c.client.CoreV1().ConfigMaps(c.namespace).Delete(ctx, GetPluginConfigMapName("Trivy"), metav1.DeleteOptions{})
+	err = c.client.CoreV1().ConfigMaps(c.namespace).Delete(ctx, c.trivyConfigName, metav1.DeleteOptions{})
 	if err != nil && !apierrors.IsNotFound(err) {
 		return err
 	}
-	err = c.client.CoreV1().Secrets(c.namespace).Delete(ctx, SecretName, metav1.DeleteOptions{})
+	err = c.client.CoreV1().Secrets(c.namespace).Delete(ctx, c.secretName, metav1.DeleteOptions{})
 	if err != nil && !apierrors.IsNotFound(err) {
 		return err
 	}

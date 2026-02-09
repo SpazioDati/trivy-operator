@@ -98,7 +98,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		"image",
 	}
 
-	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
+	trivyConfigName := ctx.GetTrivyConfigName()
 
 	volumeMounts := []corev1.VolumeMount{
 		{

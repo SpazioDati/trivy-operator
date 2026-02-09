@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: trivy-operator-policies-config
+  name: {{ include "trivy-operator.policiesConfigMapName" . }}
   namespace: {{ include "trivy-operator.namespace" . }}
   labels:
     {{- include "trivy-operator.labels" . | nindent 4 }}

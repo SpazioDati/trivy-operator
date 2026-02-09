@@ -56,7 +56,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		return corev1.PodSpec{}, nil, err
 	}
 
-	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
+	trivyConfigName := ctx.GetTrivyConfigName()
 
 	dbRepository, err := config.GetDBRepository()
 	if err != nil {
@@ -308,7 +308,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		return corev1.PodSpec{}, nil, err
 	}
 
-	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
+	trivyConfigName := ctx.GetTrivyConfigName()
 
 	requirements, err := config.GetResourceRequirements()
 	if err != nil {

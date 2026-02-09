@@ -3,7 +3,6 @@ package trivyoperator
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -46,13 +45,8 @@ type PluginContext interface {
 	GetServiceAccountName() string
 	// GetTrivyOperatorConfig returns trivyoperator configuration.
 	GetTrivyOperatorConfig() ConfigData
-}
-
-// GetPluginConfigMapName returns the name of a ConfigMap used to configure a plugin
-// with the given name.
-// TODO Rename to GetPluginConfigObjectName as this method is used to determine the name of ConfigMaps and Secrets.
-func GetPluginConfigMapName(pluginName string) string {
-	return "trivy-operator-" + strings.ToLower(pluginName) + "-config"
+	// GetTrivyConfigName returns the name of the Trivy ConfigMap.
+	GetTrivyConfigName() string
 }
 
 type pluginContext struct {
@@ -61,6 +55,7 @@ type pluginContext struct {
 	namespace           string
 	serviceAccountName  string
 	trivyOperatorConfig ConfigData
+	trivyConfigName     string
 }
 
 func (p *pluginContext) GetName() string {
@@ -71,7 +66,7 @@ func (p *pluginContext) EnsureConfig(config PluginConfig) error {
 	err := p.client.Create(context.Background(), &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: p.namespace,
-			Name:      GetPluginConfigMapName(p.name),
+			Name:      p.trivyConfigName,
 			Labels: labels.Set{
 				LabelK8SAppManagedBy: "trivyoperator",
 			},
@@ -90,7 +85,7 @@ func (p *pluginContext) GetConfig() (PluginConfig, error) {
 
 	err := p.client.Get(context.Background(), types.NamespacedName{
 		Namespace: p.namespace,
-		Name:      GetPluginConfigMapName(strings.ToLower(p.GetName())),
+		Name:      p.trivyConfigName,
 	}, cm)
 	if err != nil {
 		return PluginConfig{}, fmt.Errorf("get config map: %w", err)
@@ -98,7 +93,7 @@ func (p *pluginContext) GetConfig() (PluginConfig, error) {
 
 	err = p.client.Get(context.Background(), types.NamespacedName{
 		Namespace: p.namespace,
-		Name:      GetPluginConfigMapName(strings.ToLower(p.GetName())),
+		Name:      p.trivyConfigName,
 	}, secret)
 
 	// TODO: init
@@ -127,6 +122,10 @@ func (p *pluginContext) GetServiceAccountName() string {
 
 func (p *pluginContext) GetTrivyOperatorConfig() ConfigData {
 	return p.trivyOperatorConfig
+}
+
+func (p *pluginContext) GetTrivyConfigName() string {
+	return p.trivyConfigName
 }
 
 type PluginContextBuilder struct {
@@ -161,6 +160,11 @@ func (b *PluginContextBuilder) WithServiceAccountName(name string) *PluginContex
 
 func (b *PluginContextBuilder) WithTrivyOperatorConfig(config ConfigData) *PluginContextBuilder {
 	b.ctx.trivyOperatorConfig = config
+	return b
+}
+
+func (b *PluginContextBuilder) WithTrivyConfigName(trivyConfigName string) *PluginContextBuilder {
+	b.ctx.trivyConfigName = trivyConfigName
 	return b
 }
 

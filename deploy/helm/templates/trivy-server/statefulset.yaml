@@ -88,9 +88,9 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: trivy-operator-trivy-config
+                name: {{ include "trivy-operator.trivyConfigName" $ }}
             - secretRef:
-                name: trivy-operator-trivy-config
+                name: {{ include "trivy-operator.trivyConfigName" $ }}
             {{- if .Values.trivy.valuesFromConfigMap }}
             - configMapRef:
                 name: {{ .Values.trivy.valuesFromConfigMap }}
