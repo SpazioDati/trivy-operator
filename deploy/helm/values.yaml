@@ -673,6 +673,8 @@ compliance:
 
 rbac:
   create: true
+  # -- createAggregateClusterRoles determines whether to create aggregate ClusterRoles for viewing reports.
+  createAggregateClusterRoles: true
 serviceAccount:
   # -- Specifies whether a service account should be created.
   create: true

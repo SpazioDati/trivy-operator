@@ -1,5 +1,5 @@
 {{- if .Values.rbac.create }}
-{{ .Files.Get "generated/role.yaml" }}
+{{ .Files.Get "generated/role.yaml" | replace "name: trivy-operator" (printf "name: %s" (include "trivy-operator.fullname" .)) }}
 
 {{- if .Values.operator.accessGlobalSecretsAndServiceAccount -}}
 - apiGroups:
